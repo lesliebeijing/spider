@@ -101,4 +101,4 @@ ENV/
 .mypy_cache/
 .DS_Store
 .idea/
-.data.json
+.json
