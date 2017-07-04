@@ -1,7 +1,6 @@
 import re
 
 import scrapy
-import time
 
 """
 豆瓣搜索图书并爬取列表信息
@@ -10,7 +9,7 @@ import time
 
 class DoubanSpider(scrapy.Spider):
     name = "douban"
-    search_keys = ['机器学习']
+    search_keys = ['数据挖掘', '数据分析', '数据科学', 'python数据分析']
     page_size = 15
 
     def start_requests(self):
@@ -25,7 +24,7 @@ class DoubanSpider(scrapy.Spider):
 
         for li in lis:
             score = li.xpath('div[@class="info"]/div[2]/span[2]/text()').extract_first()
-            if score and float(score) >= 8.0:
+            if score and float(score) >= 7.0:
                 img_url = li.xpath('div[@class="pic"]/a/img/@src').extract_first()
                 comments = li.xpath('div[@class="info"]/div[2]/span[3]/text()').extract_first()
                 title = li.xpath('div[@class="info"]/h2/a/@title').extract_first()
@@ -46,13 +45,13 @@ class DoubanSpider(scrapy.Spider):
                         press = press_arr[2]
                         press_year = press_arr[3]
 
-                if press_year:
-                    tmp = re.split(r'-', press_year)
-                    year = int(tmp[0])
-                    cur_year = time.localtime(time.time()).tm_year
-                    if cur_year - year > 10:
-                        # 只看 10 年以内的
-                        continue
+                # if press_year:
+                #     tmp = re.split(r'-', press_year)
+                #     year = int(tmp[0])
+                #     cur_year = time.localtime(time.time()).tm_year
+                #     if cur_year - year > 10:
+                #         # 只看 10 年以内的
+                #         continue
 
                 comments_count = 0
                 if comments:

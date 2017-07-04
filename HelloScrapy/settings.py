@@ -9,6 +9,8 @@
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 
+import os
+
 BOT_NAME = 'HelloScrapy'
 
 SPIDER_MODULES = ['HelloScrapy.spiders']
@@ -53,10 +55,13 @@ NEWSPIDER_MODULE = 'HelloScrapy.spiders'
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
     'scrapy.contrib.downloadermiddleware.useragent.UserAgentMiddleware': None,
-    'HelloScrapy.middlewares.MyUserAgentMiddleware': 543,
-    # 'scrapy.contrib.downloadermiddleware.httpproxy.HttpProxyMiddleware': 110,
-    # 'HelloScrapy.middlewares.ProxyMiddleware': 100,
+    'HelloScrapy.middlewares.MyUserAgentMiddleware': 500,
+    'scrapy.contrib.downloadermiddleware.httpproxy.HttpProxyMiddleware': None,
+    'HelloScrapy.middlewares.ProxyMiddleware': 750,
 }
+
+# 超时时间
+DOWNLOAD_TIMEOUT = 10
 
 # Enable or disable extensions
 # See http://scrapy.readthedocs.org/en/latest/topics/extensions.html
@@ -94,3 +99,5 @@ DOWNLOADER_MIDDLEWARES = {
 LOG_FILE = 'spider.log'
 LOG_ENABLED = True
 LOG_ENCODING = 'utf-8'
+
+PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))

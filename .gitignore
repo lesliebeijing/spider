@@ -101,4 +101,7 @@ ENV/
 .mypy_cache/
 .DS_Store
 .idea/
-.json
+*.json
+
+HelloScrapy/host.txt
+HelloScrapy/valid_host.txt

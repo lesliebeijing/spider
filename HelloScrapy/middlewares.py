@@ -5,10 +5,14 @@
 # See documentation in:
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
+import os
 import random
 
 from scrapy import signals
 from scrapy.contrib.downloadermiddleware.useragent import UserAgentMiddleware
+
+from HelloScrapy import settings
+from .proxy import do_proxy
 
 
 class HelloscrapySpiderMiddleware(object):
@@ -60,9 +64,6 @@ class HelloscrapySpiderMiddleware(object):
 
 
 class MyUserAgentMiddleware(UserAgentMiddleware):
-    def __init__(self, user_agent=''):
-        self.user_agent = user_agent
-
     def process_request(self, request, spider):
         ua = random.choice(self.user_agent_list)
         if ua:
@@ -110,30 +111,38 @@ class MyUserAgentMiddleware(UserAgentMiddleware):
 
 
 class ProxyMiddleware(object):
-    def process_request(self, request, spider):
-        ip = random.choice(self.ip_list)
-        if ip:
-            request.meta['proxy'] = ip
+    proxies = None
 
-    ip_list = [
-        'http://182.108.4.84:8118',
-        'https://60.205.95.162:808',
-        'http://175.155.247.252:808',
-        'http://27.197.183.133:8118',
-        'http://119.5.1.47:808',
-        'https://222.95.21.156:808',
-        'http://211.149.162.144:808',
-        'https://123.55.187.120:808',
-        'https://220.166.242.94:8118',
-        'http://119.5.1.100:808',
-        'https://140.224.76.43:808',
-        'http://202.121.96.33:8086',
-        'http://139.224.237.33:8888',
-        'http://116.226.90.12:808',
-        'https://218.64.93.183:808',
-        'https://117.64.239.250:808',
-        'http://114.248.108.23:8118',
-        'https://183.49.85.121:8118',
-        'http://112.86.86.169:53281',
-        'http://60.178.87.0:808',
-    ]
+    def __init__(self):
+        if not self.proxies:
+            file_path = os.path.join(settings.PROJECT_ROOT, 'valid_host.txt')
+            fp = open(file_path, 'r')
+            proxies = []
+            for line in fp.readlines():
+                proxies.append(line.strip())
+            self.proxies = proxies
+
+    def process_request(self, request, spider):
+        if len(self.proxies) > 0:
+            proxy = random.choice(self.proxies)
+            request.meta['proxy'] = proxy
+            print('use proxy', proxy)
+        else:
+            print('----------- 代理已经用尽---------------')
+            do_proxy()
+
+    def process_exception(self, request, exception, spider):
+        print('******* exception', exception)
+        proxy = request.meta['proxy']
+        self.del_proxy(proxy)
+        return request
+
+    def del_proxy(self, proxy):
+        index = 0
+        for item in self.proxies:
+            if item == proxy:
+                del self.proxies[index]
+
+            index += 1
+
+        print('*** 还剩', len(self.proxies), '个代理')
