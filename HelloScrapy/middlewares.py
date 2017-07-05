@@ -7,6 +7,7 @@
 
 import os
 import random
+from datetime import datetime
 
 from scrapy import signals
 from scrapy.contrib.downloadermiddleware.useragent import UserAgentMiddleware
@@ -146,3 +147,32 @@ class ProxyMiddleware(object):
             index += 1
 
         print('*** 还剩', len(self.proxies), '个代理')
+
+
+class ProxyPoolMiddleware(object):
+    def __init__(self):
+        self.start = datetime.now()
+        self.user_proxy = False
+        import redis
+        pool = redis.ConnectionPool(host='localhost', port=6379, db=0)
+        r = redis.Redis(connection_pool=pool)
+        self.r = r
+
+    def process_request(self, request, spider):
+        if self.user_proxy:
+            proxy = self.r.srandmember('proxies', 1)
+            if len(proxy) > 0:
+                request.meta['proxy'] = proxy[0].decode()
+                print('use proxy', proxy[0].decode())
+
+        time_delta = (datetime.now() - self.start).seconds / 60
+        if time_delta > 20:
+            self.user_proxy = False
+
+    def process_exception(self, request, exception, spider):
+        self.user_proxy = True
+        print(exception)
+        proxy = request.meta['proxy']
+        if proxy:
+            self.r.srem('proxies', proxy)
+            print('remove proxy', proxy)

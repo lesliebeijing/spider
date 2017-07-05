@@ -57,7 +57,7 @@ DOWNLOADER_MIDDLEWARES = {
     'scrapy.contrib.downloadermiddleware.useragent.UserAgentMiddleware': None,
     'HelloScrapy.middlewares.MyUserAgentMiddleware': 500,
     'scrapy.contrib.downloadermiddleware.httpproxy.HttpProxyMiddleware': None,
-    'HelloScrapy.middlewares.ProxyMiddleware': 750,
+    'HelloScrapy.middlewares.ProxyPoolMiddleware': 750,
 }
 
 # 超时时间
